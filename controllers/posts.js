@@ -6,7 +6,7 @@ exports.createPost = (req, res, next) => {
   delete postObject._id;
   const post = new Post({
     ...postObject,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}` /// lien vers folder inscrit en bdd
   });
   post.save()
     .then(() => res.status(201).json({ message: 'Objet enregistré !' }))
@@ -28,19 +28,6 @@ exports.getOnePost = (req, res, next) => {
     }
   );
 };
-
-/* backup
-exports.modifyPost = (req, res, next) => {
-  const postObject = req.file ?
-    {
-      ...JSON.parse(req.body.post),
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    } : { ...req.body };
-  Post.updateOne({ _id: req.params.id }, { ...postObject, _id: req.params.id })
-    .then(() => res.status(200).json({ message: 'Objet modifié !'}))
-    .catch(error => res.status(400).json({ error }));
-};
-*/
 
 
 exports.modifyPost = (req, res, next) => {
@@ -75,36 +62,6 @@ exports.modifyPost = (req, res, next) => {
 };
 
 
-/*
-exports.modifyPost = (req, res, next) => {
-  const postObject = req.file ?
-    {
-      ...JSON.parse(req.body.post),
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    } : { ...req.body };
-  Post.updateOne({ _id: req.params.id }, { ...postObject, _id: req.params.id })
-    .then(
-      Post.findOne({ _id: req.params.id })
-      .then(post => {
-        const filename = post.imageUrl.split('/images/')[1];
-        fs.unlink(`images/${filename}`);
-      }))
-    .then(() => res.status(200).json({ message: 'Objet modifié !'}))
-    .catch(error => res.status(400).json({ error }));
-};
-*/
-
-
-/*
-exports.deleteImage = (req, res, next) => {
-  Post.findOne({ _id: req.params.id })
-    .then(post => {
-      const filename = post.imageUrl.split('/images/')[1];
-      fs.unlink(`images/${filename}`);
-    })
-    .catch(error => res.status(500).json({ error }));
-};
-*/
 
 exports.deletePost = (req, res, next) => {
   Post.findOne({ _id: req.params.id })

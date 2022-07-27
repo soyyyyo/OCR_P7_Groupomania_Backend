@@ -21,6 +21,7 @@ app.use(
 
 const postsRoutes = require('./routes/posts');
 const userRoutes = require('./routes/user');
+const userComms = require('./routes/comms');
 const path = require('path');
 
 
@@ -49,6 +50,7 @@ app.use((req, res, next) => {
 
 app.use('/api/posts', postsRoutes);
 app.use('/api/auth', userRoutes);
+app.use('/api/comms', userComms)
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 module.exports = app;

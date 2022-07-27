@@ -11,11 +11,11 @@ const postSchema = mongoose.Schema({
   dislikes: { type: Number, required: false, default: 0 },
   usersLiked: { type: [String], required: false, default: [] },
   usersDisliked: { type: [String], required: false, default: [] },
+  date: { type: String, required: true },
 });
 
 // défini le nom du répértoire, et le type de shéma utilisé
 module.exports = mongoose.model('Posts', postSchema);
-
 
 
 

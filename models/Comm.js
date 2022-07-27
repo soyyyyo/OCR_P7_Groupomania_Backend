@@ -4,6 +4,8 @@ const commSchema = mongoose.Schema({
   // champ _id automatiquent généré par Moongoose
   text: { type: String, required: true },
   userId: { type: String, required: true },
+  userImageUrl: { type: String, required: false },
+  date: { type: String, required: true },
 });
 
 // défini le nom du répértoire, et le type de shéma utilisé

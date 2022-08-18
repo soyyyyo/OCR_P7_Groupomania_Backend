@@ -2,6 +2,17 @@ const bcrypt = require(`bcrypt`);
 const User = require(`../models/User`);
 const jwt = require('jsonwebtoken');
 
+// // age limite du token de connexion, à réduire pour '24h'
+// const maxAge = 3 * 24 * 60 * 60 * 1000;
+
+// // crée le token via un encodage du fichier ENV
+// const createToken = (id) => {
+//   return jwt.sign({ id }, process.env.TOKEN_SECRET, {
+//     expiresIn: maxAge
+//   })
+// };
+
+
 exports.signup = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
     .then(hash => {
@@ -19,8 +30,9 @@ exports.signup = (req, res, next) => {
 exports.login = (req, res, next) => {
   User.findOne({ email: req.body.email })
     .then(user => {
+      const isAdmin = user.isAdmin;
       if (!user) {
-        return res.status(401).json({ error: 'Utilisateur non trouvé !' });
+        return res.status(200).json({ error: 'Utilisateur non trouvé !' }); // 200 au lieu de 401 qui catch ERR
       }
       bcrypt.compare(req.body.password, user.password)
         .then(valid => {
@@ -28,6 +40,7 @@ exports.login = (req, res, next) => {
             return res.status(401).json({ error: 'Mot de passe incorrect !' });
           }
           res.status(200).json({
+            isAdmin: isAdmin,
             userId: user._id,
             token: jwt.sign(
               { userId: user._id },
@@ -35,6 +48,7 @@ exports.login = (req, res, next) => {
               { expiresIn: '24h' }
             )
           });
+
         })
         .catch(error => res.status(500).json({ error }));
     })

@@ -3,15 +3,16 @@ const router = express.Router();
 
 const auth = require('../middleware/auth');
 const multer = require('../middleware/multer-config');
+const access = require('../middleware/access');
 
 const postsCtrl = require('../controllers/posts');
 const like = require(`../controllers/like`);
 
-router.get('/', postsCtrl.getAllPost);
-router.post('/', auth, multer, postsCtrl.createPost);
+router.get('/', auth, postsCtrl.getAllPost);
+router.post('/', multer, postsCtrl.createPost); //multer, auth
 router.get('/:id', auth, postsCtrl.getOnePost);
-router.put('/:id', auth, multer, postsCtrl.modifyPost);
-router.delete('/:id', auth, postsCtrl.deletePost);
+router.put('/:id', auth, access, multer, postsCtrl.modifyPost);
+router.delete('/:id', auth, access, postsCtrl.deletePost);
 router.post('/:id/like', auth, like.likeSystem);
 
 

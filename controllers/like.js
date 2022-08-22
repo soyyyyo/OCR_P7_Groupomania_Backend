@@ -4,6 +4,7 @@ exports.likeSystem = (req, res, next) => {
     // console.log(req.body.userId)
     // console.log(req.body.like)
     // console.log(req.params)
+    console.log("like systeme activated")
     Post.findOne({ _id: req.params.id })
         .then((objet) => {
 
@@ -27,7 +28,7 @@ exports.likeSystem = (req, res, next) => {
                         $inc: { likes: -1 },
                         $pull: { usersLiked: req.body.userId }
                     })
-                    .then(() => res.status(201).json({ message: "Un like en plus !" }))
+                    .then(() => res.status(201).json({ message: "Un like en moins !" }))
                     .catch(error => res.status(400).json({ error }));
             }
 
@@ -39,7 +40,7 @@ exports.likeSystem = (req, res, next) => {
                         $inc: { dislikes: -1 },
                         $pull: { usersDisliked: req.body.userId }
                     })
-                    .then(() => res.status(201).json({ message: "Un like en plus !" }))
+                    .then(() => res.status(201).json({ message: "Un dislike en moins !" }))
                     .catch(error => res.status(400).json({ error }));
             }
 
@@ -51,7 +52,7 @@ exports.likeSystem = (req, res, next) => {
                         $inc: { dislikes: 1 },
                         $push: { usersDisliked: req.body.userId }
                     })
-                    .then(() => res.status(201).json({ message: "Un like en plus !" }))
+                    .then(() => res.status(201).json({ message: "Un dislike en plus !" }))
                     .catch(error => res.status(400).json({ error }));
             }
         })

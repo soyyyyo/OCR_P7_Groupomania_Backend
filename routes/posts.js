@@ -9,7 +9,7 @@ const postsCtrl = require('../controllers/posts');
 const like = require(`../controllers/like`);
 
 router.get('/', auth, postsCtrl.getAllPost);
-router.post('/', multer, postsCtrl.createPost); //multer, auth
+router.post('/', auth, multer, postsCtrl.createPost); //multer, auth
 router.get('/:id', auth, postsCtrl.getOnePost);
 router.put('/:id', auth, access, multer, postsCtrl.modifyPost);
 router.delete('/:id', auth, access, postsCtrl.deletePost);

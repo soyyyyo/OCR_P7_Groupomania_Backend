@@ -1,3 +1,6 @@
+const Post = require('../models/post');
+
+
 module.exports = (req, res, next) => {
     try {
         Post.findOne({ _id: req.params.id })

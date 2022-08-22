@@ -83,6 +83,7 @@ exports.deletePost = (req, res, next) => {
       // vérifie que le userId de req est le même que celui du post, ou celui de l'admin global avant supressions
       const inputUser = req.body.userId // define the super admin user shit thingy
       if (inputUser === post.userId || inputUser === "62fd100b4a0e8ffcebb652d1") {
+
         const filename = post.imageUrl.split('/images/')[1];
         fs.unlink(`images/${filename}`, () => {
           Post.deleteOne({ _id: req.params.id })

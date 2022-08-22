@@ -16,13 +16,24 @@ exports.createPost = (req, res, next) => {
 
   const postObject = JSON.parse(req.body.post);
   delete postObject._id;
-  const post = new Post({
-    ...postObject,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/Post/${req.file.filename}` /// lien vers folder inscrit en bdd
-  });
-  post.save()
-    .then(() => res.status(201).json({ message: 'Objet enregistré !' }))
-    .catch(error => res.status(400).json({ error }));
+  if (!req.file) {
+    const post = new Post({
+      ...postObject,
+      imageUrl: null /// lien vers folder inscrit en bdd
+    });
+    post.save()
+      .then(() => res.status(201).json({ message: 'Objet enregistré !' }))
+      .catch(error => res.status(400).json({ error }));
+  } else {
+    const post = new Post({
+      ...postObject,
+      imageUrl: `${req.protocol}://${req.get('host')}/images/Post/${req.file.filename}` /// lien vers folder inscrit en bdd
+    });
+    post.save()
+      .then(() => res.status(201).json({ message: 'Objet enregistré !' }))
+      .catch(error => res.status(400).json({ error }));
+  }
+  ////
 };
 
 exports.getOnePost = (req, res, next) => {

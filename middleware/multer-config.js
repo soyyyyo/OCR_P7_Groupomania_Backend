@@ -10,11 +10,12 @@ const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, 'images/Post'); //// chemin du folder (doit exister)
   },
-  filename: (req, file, callback) => {
-    const name = file.originalname.split(' ').join('_');
-    const extension = MIME_TYPES[file.mimetype];
-    callback(null, name + Date.now() + '.' + extension);
-  }
+  filename:
+    (req, file, callback) => {
+      const name = file.originalname.split(' ').join('_');
+      const extension = MIME_TYPES[file.mimetype];
+      callback(null, name + Date.now() + '.' + extension);
+    }
 });
 
 

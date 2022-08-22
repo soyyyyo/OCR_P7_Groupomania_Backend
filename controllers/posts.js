@@ -95,12 +95,18 @@ exports.deletePost = (req, res, next) => {
       const inputUser = req.body.userId // define the super admin user shit thingy
       if (inputUser === post.userId || inputUser === "62fd100b4a0e8ffcebb652d1") {
 
-        const filename = post.imageUrl.split('/images/')[1];
-        fs.unlink(`images/${filename}`, () => {
+        if (post.imageUrl === null) {
           Post.deleteOne({ _id: req.params.id })
             .then(() => res.status(200).json({ message: 'Objet supprimé !' }))
             .catch(error => res.status(400).json({ error }));
-        });
+        } else {
+          const filename = post.imageUrl.split('/images/')[1];
+          fs.unlink(`images/${filename}`, () => {
+            Post.deleteOne({ _id: req.params.id })
+              .then(() => res.status(200).json({ message: 'Objet supprimé !' }))
+              .catch(error => res.status(400).json({ error }));
+          });
+        }
       } else {
         (error => res.status(400).json({ error }));
       }

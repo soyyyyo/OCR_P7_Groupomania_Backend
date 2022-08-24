@@ -54,10 +54,16 @@ exports.getOnePost = (req, res, next) => {
 
 
 exports.modifyPost = (req, res, next) => {
+  console.log("la req body userid", req.body.userId)
+
   const postObject = req.file ? {
     ...JSON.parse(req.body.post),
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-  } : { ...req.body };
+    imageUrl: `${req.protocol}://${req.get('host')}/images/Post/${req.file.filename}`
+  } : { ...JSON.parse(req.body.post) }; //JSON.parse car on envoi un objet JS
+
+  console.log("la req post", postObject)
+  console.log("la req body pure", req.body)
+  console.log("la req body userid", req.body.userId)
 
   delete postObject._userId;
 
@@ -66,15 +72,15 @@ exports.modifyPost = (req, res, next) => {
       if (post.userId != req.auth.userId) {
         res.status(401).json({ message: 'Not authorized' });
       } else if (req.file != null) {
-        const filename = post.imageUrl.split('/images/')[1];
-        fs.unlink(`images/${filename}`, () => {
+        const filename = post.imageUrl.split('/images/Post')[1]; // chemins posts ??
+        fs.unlink(`images/Post/${filename}`, () => {
           Post.updateOne({ _id: req.params.id }, { ...postObject, _id: req.params.id })
             .then(() => res.status(200).json({ message: 'Objet modifié!' }))
             .catch(error => res.status(401).json({ error }));
         });
       } else {
         Post.updateOne({ _id: req.params.id }, { ...postObject, _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Objet modifié!' }))
+          .then(() => res.status(200).json({ message: 'Objet modifié! Sans images' }))
           .catch(error => res.status(401).json({ error }));
       }
 

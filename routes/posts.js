@@ -11,7 +11,7 @@ const like = require(`../controllers/like`);
 router.get('/', auth, postsCtrl.getAllPost);
 router.post('/', auth, multer, postsCtrl.createPost); //multer, auth
 router.get('/:id', auth, postsCtrl.getOnePost);
-router.put('/:id', auth, access, multer, postsCtrl.modifyPost);
+router.put('/:id', auth, access, multer, postsCtrl.modifyPost); // access
 router.delete('/:id', auth, access, postsCtrl.deletePost);
 router.post('/:id/like', auth, like.likeSystem);
 

@@ -18,7 +18,8 @@ exports.signup = (req, res, next) => {
     .then(hash => {
       const user = new User({
         email: req.body.email,
-        password: hash
+        password: hash,
+        username: req.body.username
       });
       user.save()
         .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
@@ -30,6 +31,7 @@ exports.signup = (req, res, next) => {
 exports.login = (req, res, next) => {
   User.findOne({ email: req.body.email })
     .then(user => {
+      // on renvoi au front si l'user est admin (ne lui donne qu'un affichage, les verifs se feront en back)
       const isAdmin = user.isAdmin;
       if (!user) {
         return res.status(200).json({ error: 'Utilisateur non trouvé !' }); // 200 au lieu de 401 qui catch ERR
@@ -42,6 +44,7 @@ exports.login = (req, res, next) => {
           res.status(200).json({
             isAdmin: isAdmin,
             userId: user._id,
+            username: user.username,
             token: jwt.sign(
               { userId: user._id },
               '5bLVDv1K97g4wwaCF15SXkQKYyFa8NnE',

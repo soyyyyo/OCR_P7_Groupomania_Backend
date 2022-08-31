@@ -61,17 +61,19 @@ exports.modifyPost = (req, res, next) => {
     imageUrl: `${req.protocol}://${req.get('host')}/images/Post/${req.file.filename}`
   } : { ...JSON.parse(req.body.post) }; //JSON.parse car on envoi un objet JS
 
-  console.log("la req post", postObject)
-  console.log("la req body pure", req.body)
-  console.log("la req body userid", req.body.userId)
+  // console.log("la req post", postObject)
+  // console.log("la req body pure", req.body)
+  // console.log("la req body userid", req.body.userId)
 
   delete postObject._userId;
 
   Post.findOne({ _id: req.params.id })
     .then((post) => {
-      if (post.userId != req.auth.userId) {
-        res.status(401).json({ message: 'Not authorized' });
-      } else if (req.file != null) {
+      // if (post.userId != req.auth.userId) {
+      //   res.status(401).json({ message: 'Not authorized' });
+      // } else
+
+      if (req.file != null) {
         const filename = post.imageUrl.split('/images/Post')[1]; // chemins posts ??
         fs.unlink(`images/Post/${filename}`, () => {
           Post.updateOne({ _id: req.params.id }, { ...postObject, _id: req.params.id })
@@ -97,25 +99,24 @@ exports.deletePost = (req, res, next) => {
 
   Post.findOne({ _id: req.params.id })
     .then(post => {
-      // vérifie que le userId de req est le même que celui du post, ou celui de l'admin global avant supressions
-      const inputUser = req.body.userId // define the super admin user shit thingy
-      if (inputUser === post.userId || inputUser === "62fd100b4a0e8ffcebb652d1") {
-
-        if (post.imageUrl === null) {
+      // // vérifie que le userId de req est le même que celui du post, ou celui de l'admin global avant supressions
+      // const inputUser = req.body.userId // define the super admin user shit thingy
+      // if (inputUser === post.userId || inputUser === "62fd100b4a0e8ffcebb652d1") {
+      if (post.imageUrl === null) {
+        Post.deleteOne({ _id: req.params.id })
+          .then(() => res.status(200).json({ message: 'Objet supprimé !' }))
+          .catch(error => res.status(400).json({ error }));
+      } else {
+        const filename = post.imageUrl.split('/images/')[1];
+        fs.unlink(`images/${filename}`, () => {
           Post.deleteOne({ _id: req.params.id })
             .then(() => res.status(200).json({ message: 'Objet supprimé !' }))
             .catch(error => res.status(400).json({ error }));
-        } else {
-          const filename = post.imageUrl.split('/images/')[1];
-          fs.unlink(`images/${filename}`, () => {
-            Post.deleteOne({ _id: req.params.id })
-              .then(() => res.status(200).json({ message: 'Objet supprimé !' }))
-              .catch(error => res.status(400).json({ error }));
-          });
-        }
-      } else {
-        (error => res.status(400).json({ error }));
+        });
       }
+      // } else {
+      //   (error => res.status(400).json({ error }));
+      // }
     })
     .catch(error => res.status(500).json({ error }));
 };

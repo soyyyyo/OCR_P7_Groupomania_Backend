@@ -1,5 +1,5 @@
 const Post = require('../models/post');
-
+require('dotenv').config()
 
 module.exports = (req, res, next) => {
     // const inputUser = req.body.userId // define the super admin user shit thingy
@@ -10,16 +10,13 @@ module.exports = (req, res, next) => {
         .then(post => {
             // vérifie que le userId de req est le même que celui du post, ou celui de l'admin global avant supressions
             console.log("inpute user is", inputUser)
-            if (inputUser === post.userId || inputUser === "62fd100b4a0e8ffcebb652d1") {
+            if (inputUser === post.userId || inputUser === process.env.ADMIN_USERID) {
                 next();
-                console.log("Acces accepted")
+                console.log("Access accepted")
             } else {
-                (error => res.status(400).json({ error }));
-                console.log("Acces denied")
+                console.log("Access denied")
+                throw (error => res.status(400).json({ error }));
             }
-
-
-
         })
         .catch(error => res.status(500).json({ error }));
 

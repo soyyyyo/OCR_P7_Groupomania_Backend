@@ -1,6 +1,8 @@
 const bcrypt = require(`bcrypt`);
 const User = require(`../models/User`);
 const jwt = require('jsonwebtoken');
+require('dotenv').config()
+
 
 // // age limite du token de connexion, à réduire pour '24h'
 // const maxAge = 3 * 24 * 60 * 60 * 1000;
@@ -12,20 +14,36 @@ const jwt = require('jsonwebtoken');
 //   })
 // };
 
+const RegexEmail = (value) => {
+  const emailRegexp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  const valid = emailRegexp.test(value);
+  return valid;
+}
+
 
 exports.signup = (req, res, next) => {
-  bcrypt.hash(req.body.password, 10)
-    .then(hash => {
-      const user = new User({
-        email: req.body.email,
-        password: hash,
-        username: req.body.username
-      });
-      user.save()
-        .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-        .catch(error => res.status(400).json({ error }));
-    })
-    .catch(error => res.status(500).json({ error }));
+  const password = req.body.password
+  const email = req.body.email
+  const username = req.body.username
+
+  if (!RegexEmail(req.body.email)) {
+    res.status(401).json({ message: "invalid email, please double check" });
+  } else if (password.length < 8) {
+    res.status(401).json({ message: "invalid password - min 8 characters" });
+  } else {
+    bcrypt.hash(password, 10)
+      .then(hash => {
+        const user = new User({
+          email: email,
+          password: hash,
+          username: username
+        });
+        user.save()
+          .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
+          .catch(error => res.status(400).json({ error }));
+      })
+      .catch(error => res.status(500).json({ error }));
+  }
 };
 
 exports.login = (req, res, next) => {
@@ -47,7 +65,7 @@ exports.login = (req, res, next) => {
             username: user.username,
             token: jwt.sign(
               { userId: user._id },
-              '5bLVDv1K97g4wwaCF15SXkQKYyFa8NnE',
+              process.env.TOKEN_SECRET,
               { expiresIn: '24h' }
             )
           });

@@ -3,6 +3,21 @@ const app = express();
 const mongoose = require('mongoose');
 require('dotenv').config()
 
+// sanitizer pour éviter les injections
+const bodyParser = require('body-parser');
+const mongoSanitize = require('express-mongo-sanitize');
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(mongoSanitize());
+
+app.use(
+  mongoSanitize({
+    onSanitize: ({ req, key }) => {
+      console.log(`This request[${key}] is sanitized`, req);
+    },
+  }),
+);
+
 
 const postsRoutes = require('./routes/posts');
 const userRoutes = require('./routes/user');

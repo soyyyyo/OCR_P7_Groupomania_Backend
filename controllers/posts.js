@@ -4,22 +4,12 @@ const fs = require('fs');
 
 exports.createPost = (req, res, next) => {
 
-  // console.log("body", req.body);
-  // console.log("body file", req.body.file);
-  // console.log("body filename", req.body);
-  // console.log("file filename", req.file);
-
-  // console.log("json parse body", JSON.parse(req.body));
-  // console.log("json parse post", JSON.parse(req.body.post));
-  // console.log("json parse image", JSON.parse(req.body.image));
-
-
   const postObject = JSON.parse(req.body.post);
   delete postObject._id;
   if (!req.file) {
     const post = new Post({
       ...postObject,
-      imageUrl: null /// lien vers folder inscrit en bdd
+      imageUrl: null // si il n'y a pas d'image
     });
     post.save()
       .then(() => res.status(201).json({ message: 'Objet enregistré !' }))
@@ -27,7 +17,7 @@ exports.createPost = (req, res, next) => {
   } else {
     const post = new Post({
       ...postObject,
-      imageUrl: `${req.protocol}://${req.get('host')}/images/Post/${req.file.filename}` /// lien vers folder inscrit en bdd
+      imageUrl: `${req.protocol}://${req.get('host')}/images/Post/${req.file.filename}` /// lien vers le dossier de la BDD
     });
     post.save()
       .then(() => res.status(201).json({ message: 'Objet enregistré !' }))
@@ -36,6 +26,7 @@ exports.createPost = (req, res, next) => {
   ////
 };
 
+// affichage d'un seul post: non utilisé à ce jour
 exports.getOnePost = (req, res, next) => {
   Post.findOne({
     _id: req.params.id
@@ -54,38 +45,29 @@ exports.getOnePost = (req, res, next) => {
 
 
 exports.modifyPost = (req, res, next) => {
-  console.log("la req body userid", req.body.userId)
-
   const postObject = req.file ? {
     ...JSON.parse(req.body.post),
     imageUrl: `${req.protocol}://${req.get('host')}/images/Post/${req.file.filename}`
   } : { ...JSON.parse(req.body.post) }; //JSON.parse car on envoi un objet JS
 
-  // console.log("la req post", postObject)
-  // console.log("la req body pure", req.body)
-  // console.log("la req body userid", req.body.userId)
-
   delete postObject._userId;
 
   Post.findOne({ _id: req.params.id })
     .then((post) => {
-      // if (post.userId != req.auth.userId) {
-      //   res.status(401).json({ message: 'Not authorized' });
-      // } else
-
-      if (req.file != null) {
+      // si l'image doit être remplacée : un file en upload, une valeur pour imageURL dans le post
+      if (req.file != null && post.imageUrl != null) {
         const filename = post.imageUrl.split('/images/Post')[1]; // chemins posts ??
         fs.unlink(`images/Post/${filename}`, () => {
           Post.updateOne({ _id: req.params.id }, { ...postObject, _id: req.params.id })
-            .then(() => res.status(200).json({ message: 'Objet modifié!' }))
+            .then(() => res.status(200).json({ message: 'Objet modifié! Image remplacée' }))
             .catch(error => res.status(401).json({ error }));
         });
-      } else {
+        // si l'image doit être ajoutée (pas de valeur imageUrl dans post), ou update sans images
+      } else if (req.file === null || post.imageUrl === null) {
         Post.updateOne({ _id: req.params.id }, { ...postObject, _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Objet modifié! Sans images' }))
+          .then(() => res.status(200).json({ message: 'Objet modifié! Sans images.' }))
           .catch(error => res.status(401).json({ error }));
       }
-
     })
     .catch((error) => {
       res.status(400).json({ error });
@@ -93,15 +75,11 @@ exports.modifyPost = (req, res, next) => {
 };
 
 
-
+// supprime un post et l'image correspondante
 exports.deletePost = (req, res, next) => {
   console.log("is tryin to access delete function", req.body.userId)
-
   Post.findOne({ _id: req.params.id })
     .then(post => {
-      // // vérifie que le userId de req est le même que celui du post, ou celui de l'admin global avant supressions
-      // const inputUser = req.body.userId // define the super admin user shit thingy
-      // if (inputUser === post.userId || inputUser === "62fd100b4a0e8ffcebb652d1") {
       if (post.imageUrl === null) {
         Post.deleteOne({ _id: req.params.id })
           .then(() => res.status(200).json({ message: 'Objet supprimé !' }))
@@ -114,14 +92,11 @@ exports.deletePost = (req, res, next) => {
             .catch(error => res.status(400).json({ error }));
         });
       }
-      // } else {
-      //   (error => res.status(400).json({ error }));
-      // }
     })
     .catch(error => res.status(500).json({ error }));
 };
 
-
+// exporte tout les posts et toutes leurs données
 exports.getAllPost = (req, res, next) => {
   Post.find().then(
     (posts) => {

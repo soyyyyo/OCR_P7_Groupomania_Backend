@@ -1,22 +1,7 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-
-
-// sanitizer pour éviter les injections
-const bodyParser = require('body-parser');
-const mongoSanitize = require('express-mongo-sanitize');
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(mongoSanitize());
-
-app.use(
-  mongoSanitize({
-    onSanitize: ({ req, key }) => {
-      console.warn(`This request[${key}] is sanitized`, req);
-    },
-  }),
-);
+require('dotenv').config()
 
 
 const postsRoutes = require('./routes/posts');
@@ -30,8 +15,7 @@ const path = require('path');
 
 
 /// CONNEXION A MOONGOOSE
-mongoose.connect('mongodb+srv://izame:KryptoJustice75@groupomania.uee9r.mongodb.net/?retryWrites=true&w=majority',
-  // compte restreint pour ne pas divulguer le compte admin sur github
+mongoose.connect(process.env.MONGO_URL,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true

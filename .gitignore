@@ -1,4 +1,5 @@
 /node_modules
 .idea
 
-/images
+# images temporairement sur github le temps de la soutenance
+# /images

@@ -100,6 +100,14 @@ exports.deletePost = (req, res, next) => {
 exports.getAllPost = (req, res, next) => {
   Post.find().then(
     (posts) => {
+      /// idéalement pouvoir cacher le userId et ne prévoir qu'un boolean pour l'acces front des edit/delete
+      // posts.forEach(post => {
+      //   if (req.auth.userId = post.userId) {
+      //     post.userId = true
+      //   } else {
+      //     post.userId = false
+      //   }
+      // });
       res.status(200).json(posts);
     }
   ).catch(

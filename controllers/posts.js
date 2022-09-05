@@ -54,6 +54,10 @@ exports.modifyPost = (req, res, next) => {
 
   Post.findOne({ _id: req.params.id })
     .then((post) => {
+
+      console.log("req file:", req.file)
+      console.log("imageurl", post.imageUrl)
+
       // si l'image doit être remplacée : un file en upload, une valeur pour imageURL dans le post
       if (req.file != null && post.imageUrl != null) {
         const filename = post.imageUrl.split('/images/Post')[1]; // chemins posts ??
@@ -63,9 +67,11 @@ exports.modifyPost = (req, res, next) => {
             .catch(error => res.status(401).json({ error }));
         });
         // si l'image doit être ajoutée (pas de valeur imageUrl dans post), ou update sans images
-      } else if (req.file === null || post.imageUrl === null) {
+      } else if (req.file === undefined || post.imageUrl === null) {
+        let message = "Objet modifié! Sans changement d'image."
+        req.file != undefined && (message = "Objet modifié! Image ajoutée.")
         Post.updateOne({ _id: req.params.id }, { ...postObject, _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Objet modifié! Sans images.' }))
+          .then(() => res.status(200).json({ message: message }))
           .catch(error => res.status(401).json({ error }));
       }
     })
